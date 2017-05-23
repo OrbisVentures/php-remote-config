@@ -1,12 +1,12 @@
 {
-  "name": "CarlosZarate/php-spring-cloud-config-client",
+  "name": "carmanuelz/php-spring-cloud-config-client",
   "description": "Spring Cloud Config client for PHP",
   "license": "MIT",
   "version": "dev-master",
   "authors": [
     {
       "name": "Carlos Zarate",
-      "email": "carlos.zarate@orbis.com.pe"
+      "email": "carmanuel.zarate@gmail.com"
     }
   ],
   "required": {
