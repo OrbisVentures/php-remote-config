@@ -9,13 +9,13 @@
       "email": "carmanuel.zarate@gmail.com"
     }
   ],
-  "required": {
-    "php": ">=5.4.0",
-    "guzzlehttp/guzzle": "~6.0"
-  },
   "autoload": {
     "psr-4": {
       "SpringConfig\\": "src/"
     }
+  },
+  "require": {
+    "php": ">=5.5",
+    "guzzlehttp/guzzle": "~6.0"
   }
 }
