@@ -1,5 +1,5 @@
 <?php
-namespace SpringConfig\RequestClient;
+namespace RemoteConfig\Client;
 
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Promise;
@@ -21,8 +21,8 @@ class RequestClient
             "host"      => getenv("CONFIG_HOST"),
             "user"      => getenv("CONFIG_USER"),
             "password"  => getenv("CONFIG_PASSWORD"),
-            "timeout"   => is_null($timeout)?$timeout:5,
-            "env"       => is_null($env)?$env:'default'
+            "timeout"   => $timeout?$timeout:5,
+            "env"       => $env?$env:'default'
         ];
 
         if (!is_null($config)) {
@@ -36,22 +36,27 @@ class RequestClient
         $requestPromises = [];
         foreach ($services as $service) {
             $uri = "/{$service}-{$this->config['env']}.json";
-            if(!is_null($this->config["user"]) && !is_null($this->config["password"])) {
-                $requestPromises[$service] = $client->request('GET', $uri, ['auth' => [$this->config["user"], $this->config["password"]]]);
-            }
-            $requestPromises[$service] = $client->request('GET', $uri);
+            $requestPromises[$service] = $client->getAsync($uri);
         }
         $results = Promise\settle($requestPromises)->wait();
-        var_dump($results);exit;
+        $arrayResult = [];
+        foreach ($results as $key => $result) {
+            $arrayResult[$key] = json_decode($result['value']->getBody()->getContents(),true);
+        }
+        return $arrayResult;
     }
 
     private function getClient()
     {
         if(is_null($this->guzzleClient)) {
-            $this->guzzleClient = new GuzzleClient([
+            $parameters = [
                 'base_uri' => $this->config['host'],
-                'timeout'  => $this->config['host'],
-            ]);
+                'timeout'  => $this->config['host']
+            ];
+            if($this->config["user"] && $this->config["password"]) {
+                $parameters['headers'] = ['Authorization' => 'Basic '. base64_encode($this->config["user"].':'.$this->config["password"])];
+            }
+            $this->guzzleClient = new GuzzleClient($parameters);
         }
         return $this->guzzleClient;
     }
