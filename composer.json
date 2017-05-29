@@ -1,5 +1,5 @@
 {
-  "name": "carmanuelz/php-spring-cloud-config-client",
+  "name": "carmanuelz/php-remote-config",
   "description": "Spring Cloud Config client for PHP",
   "license": "MIT",
   "version": "dev-master",
@@ -11,7 +11,7 @@
   ],
   "autoload": {
     "psr-4": {
-      "SpringConfig\\": "src/"
+      "RemoteConfig\\": "src/"
     }
   },
   "require": {
