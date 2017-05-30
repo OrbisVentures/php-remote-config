@@ -16,13 +16,12 @@ class RequestClient
     public function __construct(array $config = null)
     {
         $timeout = getenv("CONFIG_TIMEOUT");
-        $env = getenv("CONFIG_ENV");
         $this->config = [
             "host"      => getenv("CONFIG_HOST"),
             "user"      => getenv("CONFIG_USER"),
             "password"  => getenv("CONFIG_PASSWORD"),
             "timeout"   => $timeout?$timeout:5,
-            "env"       => $env?$env:'default'
+            "env"       => getenv("CONFIG_ENV")
         ];
 
         if (!is_null($config)) {
@@ -35,7 +34,10 @@ class RequestClient
         $client = $this->getClient();
         $requestPromises = [];
         foreach ($services as $service) {
-            $uri = "/{$service}-{$this->config['env']}.json";
+            $uri = "/{$service}-default.json";
+            if ($this->config['env']) {
+                $uri = "/{$this->config['env']}{$uri}";
+            }
             $requestPromises[$service] = $client->getAsync($uri);
         }
         $results = Promise\settle($requestPromises)->wait();
