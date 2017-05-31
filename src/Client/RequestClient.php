@@ -11,6 +11,9 @@ class RequestClient
      */
     private $guzzleClient = null;
 
+    /**
+     * @var array
+     */
     private $config;
 
     public function __construct(array $config = null)
@@ -43,7 +46,16 @@ class RequestClient
         $results = Promise\settle($requestPromises)->wait();
         $arrayResult = [];
         foreach ($results as $key => $result) {
-            $arrayResult[$key] = json_decode($result['value']->getBody()->getContents(),true);
+            if(isset($result['value'])) {
+                $arrayResult[$key] = json_decode($result['value']->getBody()->getContents(),true);
+            } elseif ($result['state'] == 'rejected') {
+                $arrayResult[$key] = [
+                    'error' => 'true',
+                    'messaje' => $result['reason']->getMessage()
+                ];
+            } else {
+                $arrayResult[$key] = [];
+            }
         }
         return $arrayResult;
     }
