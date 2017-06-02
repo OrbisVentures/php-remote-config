@@ -29,7 +29,7 @@ class RemoteConfig
     {
         $arrayConfigResult = [];
         $responseConfigArray = [];
-        self::setCacheEnamble();
+        self::setCacheEnable();
         $isUpdate = false;
         // Recovery config from cache
         self::fetchConfig();
@@ -94,7 +94,7 @@ class RemoteConfig
         }
     }
 
-    private static function setCacheEnamble()
+    private static function setCacheEnable()
     {
         $isEnable = getenv('CONFIG_CACHE_ENABLE');
         if(is_string($isEnable)) {

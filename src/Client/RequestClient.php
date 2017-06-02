@@ -19,12 +19,15 @@ class RequestClient
     public function __construct(array $config = null)
     {
         $timeout = getenv("CONFIG_TIMEOUT");
+        $profile = getenv("CONFIG_PROFILE");
         $this->config = [
             "host"      => getenv("CONFIG_HOST"),
             "user"      => getenv("CONFIG_USER"),
             "password"  => getenv("CONFIG_PASSWORD"),
             "timeout"   => $timeout?$timeout:5,
-            "env"       => getenv("CONFIG_ENV")
+            "env"       => getenv("CONFIG_ENV"),
+            "prefix"    => getenv("CONFIG_URI_PREFIX"),
+            "profile"   => $profile?$profile:"default"
         ];
 
         if (!is_null($config)) {
@@ -37,24 +40,27 @@ class RequestClient
         $client = $this->getClient();
         $requestPromises = [];
         foreach ($services as $service) {
-            $uri = "/{$service}-default.json";
+            $uri = "/{$service}-{$this->config['profile']}.json";
             if ($this->config['env']) {
                 $uri = "/{$this->config['env']}{$uri}";
+            }
+            if($this->config['prefix']) {
+                $uri = "{$this->config['prefix']}{$uri}";
             }
             $requestPromises[$service] = $client->getAsync($uri);
         }
         $results = Promise\settle($requestPromises)->wait();
         $arrayResult = [];
         foreach ($results as $key => $result) {
-            if(isset($result['value'])) {
+            if(isset($result['value']) && $result['state'] == 'fulfilled') {
                 $arrayResult[$key] = json_decode($result['value']->getBody()->getContents(),true);
             } elseif ($result['state'] == 'rejected') {
-                $arrayResult[$key] = [
+                /*$arrayResult[$key] = [
                     'error' => 'true',
                     'messaje' => $result['reason']->getMessage()
-                ];
+                ];*/
             } else {
-                $arrayResult[$key] = [];
+                //$arrayResult[$key] = [];
             }
         }
         return $arrayResult;
