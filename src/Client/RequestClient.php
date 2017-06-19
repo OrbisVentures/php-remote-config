@@ -53,7 +53,7 @@ class RequestClient
         $arrayResult = [];
         foreach ($results as $key => $result) {
             if(isset($result['value']) && $result['state'] == 'fulfilled') {
-                $arrayResult[$key] = json_decode($result['value']->getBody()->getContents(),true);
+                $arrayResult[$key] = $this->filterConfig(json_decode($result['value']->getBody()->getContents(),true));
             } elseif ($result['state'] == 'rejected') {
                 /*$arrayResult[$key] = [
                     'error' => 'true',
@@ -79,5 +79,21 @@ class RequestClient
             $this->guzzleClient = new GuzzleClient($parameters);
         }
         return $this->guzzleClient;
+    }
+
+    /**
+     * @param array $configResult
+     * @return array
+     */
+    private function filterConfig(array $configResult)
+    {
+        foreach ($configResult as $keyConfig => $value) {
+            if ($value == 'true' ) {
+                $configResult[$keyConfig] = true;
+            } elseif($value == 'false') {
+                $configResult[$keyConfig] = false;
+            }
+        }
+        return $configResult;
     }
 }
